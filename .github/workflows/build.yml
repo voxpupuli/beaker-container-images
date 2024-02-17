@@ -18,7 +18,7 @@ jobs:
           ruby-version: "3.2"
           bundler-cache: true
       - name: Run beaker
-        run: bundle exec beaker --provision --hosts almalinux8-64{hostname=almalinux8-64-puppet7.example.com,hypervisor=docker} --dry-run
+        run: bundle exec beaker --provision --hosts almalinux8-64{hostname=almalinux8-64-puppet7.example.com} --dry-run
         env:
           BUNDLE_WITHOUT: release
           BEAKER_HYPERVISOR: docker
