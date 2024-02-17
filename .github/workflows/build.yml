@@ -66,8 +66,12 @@ jobs:
         run: docker image tag ${{ github.repository }}:latest ghcr.io/${{ github.repository }}:${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}
       - name: Add more tag
         run: docker image tag ${{ github.repository }}:latest ghcr.io/${{ github.repository_owner }}/${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}:latest
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@9ec57ed1fcdbf14dcef7dfbe97b2010124a938b7
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}:latest
       - name: Publish container
-        # run: docker push ghcr.io/${{ github.repository }}:${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION}}
         run: docker push ghcr.io/${{ github.repository_owner }}/${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}:latest
 
   tests:
