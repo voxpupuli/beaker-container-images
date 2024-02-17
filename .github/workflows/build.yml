@@ -63,6 +63,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
       - name: add tag
-        run: docker image tag ${{ github.repository }}:latest ${{ github.repository }}:${{ matrix.env.BEAKER_SETFILE }}
+        run: docker image tag ${{ github.repository }}:latest ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:${{ matrix.env.BEAKER_SETFILE }}
       - name: Publish container
-        run: docker push ghcr.io/bastelfreak/${{ github.repository }}:${{ matrix.env.BEAKER_SETFILE }}
+        run: docker push ghcr.io/${{ github.repository_owner }}/${{ github.repository }}:${{ matrix.env.BEAKER_SETFILE }}
