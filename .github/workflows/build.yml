@@ -65,7 +65,7 @@ jobs:
       - name: Add tag
         run: docker image tag ${{ github.repository }}:latest ghcr.io/${{ github.repository }}:${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}
       - name: Add more tag
-        run: docker image tag ${{ github.repository }}:latest ${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}:latest
+        run: docker image tag ${{ github.repository }}:latest ghcr.io/${{ github.repository_owner }}/${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}:latest
       - name: Publish container
         # run: docker push ghcr.io/${{ github.repository }}:${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION}}
-        run: docker push ghcr.io/${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}:latest
+        run: docker push ghcr.io/${{ github.repository }}/${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}:latest
