@@ -23,7 +23,7 @@ jobs:
           bundler-cache: true
       - name: Setup Test Matrix
         id: get-outputs
-        run: bundle exec metadata2gha --domain example.com
+        run: bundle exec metadata2gha
 
   beaker:
     needs: setup_matrix
@@ -47,7 +47,7 @@ jobs:
           cache-version: ${{ inputs.cache-version }}
           working-directory: ${{ inputs.working-directory }}
       - name: Run beaker
-        run: bundle exec beaker --provision --preserve-hosts always --hosts ${{ matrix.env.BEAKER_SETFILE }} --log-level debug
+        run: bundle exec beaker --provision --preserve-hosts always --hosts ${{ matrix.env.BEAKER_SETFILE }}{tag=beaker} --log-level debug
         env: ${{ matrix.env }}
       - name: List images
         run: docker images
