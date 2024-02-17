@@ -69,3 +69,12 @@ jobs:
       - name: Publish container
         # run: docker push ghcr.io/${{ github.repository }}:${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION}}
         run: docker push ghcr.io/${{ github.repository_owner }}/${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}:latest
+
+  tests:
+    needs:
+      - setup_matrix
+      - beaker
+    runs-on: ubuntu-latest
+    name: Test suite
+    steps:
+      - run: echo Test suite completed
