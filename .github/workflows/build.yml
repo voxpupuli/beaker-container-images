@@ -8,11 +8,12 @@ on:
       - master
 
 jobs:
-  rubocop:
-    env:
-      BUNDLE_WITHOUT: release
-      BEAKER_HYPERVISOR: docker
+  setup_matrix:
     runs-on: ubuntu-latest
+    name: Setup Matrix
+    outputs:
+      puppet_unit_test_matrix: ${{ steps.get-outputs.outputs.puppet_unit_test_matrix }}
+      puppet_beaker_test_matrix: ${{ steps.get-outputs.outputs.puppet_beaker_test_matrix }}
     steps:
       - uses: actions/checkout@v4
       - name: Install Ruby ${{ matrix.ruby }}
@@ -20,9 +21,64 @@ jobs:
         with:
           ruby-version: "3.2"
           bundler-cache: true
+      - name: Setup Test Matrix
+        id: get-outputs
+        run: bundle exec metadata2gha
+
+  beaker:
+    needs: setup_matrix
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    env:
+      BUNDLE_WITHOUT: release
+      BEAKER_HYPERVISOR: docker
+      BEAKER_DEBUG: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{fromJson(needs.setup_matrix.outputs.puppet_beaker_test_matrix)}}
+    name: "${{ matrix.name }}"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          cache-version: ${{ inputs.cache-version }}
+          working-directory: ${{ inputs.working-directory }}
       - name: Run beaker
-        run: bundle exec beaker --provision --dry-run --hosts ubuntu2204-64
+        run: bundle exec beaker --provision --preserve-hosts always --hosts ${{ matrix.env.BEAKER_SETFILE }}{tag=${{ github.repository }}} --log-level debug
+        env: ${{ matrix.env }}
       - name: List images
         run: docker images
       - name: List container
         run: docker ps
+      - name: Log in to the Container registry
+        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: Add tag
+        run: docker image tag ${{ github.repository }}:latest ghcr.io/${{ github.repository }}:${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}
+      - name: Add more tag
+        run: docker image tag ${{ github.repository }}:latest ghcr.io/${{ github.repository_owner }}/${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}:latest
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ghcr.io/${{ github.repository_owner }}/${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}:latest
+      - name: Publish container
+        run: docker push ghcr.io/${{ github.repository_owner }}/${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}:latest
+
+  tests:
+    needs:
+      - setup_matrix
+      - beaker
+    runs-on: ubuntu-latest
+    name: Test suite
+    steps:
+      - run: echo Test suite completed
