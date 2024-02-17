@@ -26,7 +26,6 @@ jobs:
         run: bundle exec metadata2gha --domain example.com --pidfile-workaround
 
   beaker:
-    defaults:
     needs: setup_matrix
     runs-on: ubuntu-latest
     env:
