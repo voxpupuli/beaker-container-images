@@ -50,7 +50,7 @@ jobs:
           cache-version: ${{ inputs.cache-version }}
           working-directory: ${{ inputs.working-directory }}
       - name: Run beaker
-        run: bundle exec beaker --provision --hosts ${{ matrix.env.BEAKER_SETFILE }}{tag=${{ github.repository }}} --log-level debug
+        run: bundle exec beaker --provision --preserve-hosts always --hosts ${{ matrix.env.BEAKER_SETFILE }}{tag=${{ github.repository }}} --log-level debug
         env: ${{ matrix.env }}
       - name: List images
         run: docker images
