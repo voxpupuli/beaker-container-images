@@ -9,10 +9,6 @@ on:
 
 jobs:
   build:
-    env:
-      BUNDLE_WITHOUT: release
-      BEAKER_HYPERVISOR: docker
-      BEAKER_DEBUG: true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -23,6 +19,10 @@ jobs:
           bundler-cache: true
       - name: Run beaker
         run: bundle exec beaker --provision --hosts ubuntu2204-64
+        env:
+          BUNDLE_WITHOUT: release
+          BEAKER_HYPERVISOR: docker
+          BEAKER_DEBUG: true
       - name: List images
         run: docker images
       - name: List container
