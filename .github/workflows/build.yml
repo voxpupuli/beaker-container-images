@@ -8,8 +8,12 @@ on:
       - master
 
 jobs:
-  build:
+  setup_matrix:
     runs-on: ubuntu-latest
+    name: Setup Matrix
+    outputs:
+      puppet_unit_test_matrix: ${{ steps.get-outputs.outputs.puppet_unit_test_matrix }}
+      puppet_beaker_test_matrix: ${{ steps.get-outputs.outputs.puppet_beaker_test_matrix }}
     steps:
       - uses: actions/checkout@v4
       - name: Install Ruby ${{ matrix.ruby }}
@@ -17,12 +21,35 @@ jobs:
         with:
           ruby-version: "3.2"
           bundler-cache: true
+      - name: Setup Test Matrix
+        id: get-outputs
+        run: bundle exec metadata2gha --domain example.com --pidfile-workaround
+
+  beaker:
+    defaults:
+    needs: setup_matrix
+    runs-on: ubuntu-latest
+    env:
+      BUNDLE_WITHOUT: release
+      BEAKER_HYPERVISOR: docker
+      BEAKER_DEBUG: true
+    strategy:
+      fail-fast: false
+      matrix:
+        include: ${{fromJson(needs.setup_matrix.outputs.puppet_beaker_test_matrix)}}
+    name: "${{ matrix.name }}"
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup ruby
+        uses: ruby/setup-ruby@v1
+        with:
+          ruby-version: '3.2'
+          bundler-cache: true
+          cache-version: ${{ inputs.cache-version }}
+          working-directory: ${{ inputs.working-directory }}
       - name: Run beaker
-        run: bundle exec beaker --provision --hosts almalinux8-64{hostname=almalinux8-64-puppet7.example.com} --preserve-hosts always
-        env:
-          BUNDLE_WITHOUT: release
-          BEAKER_HYPERVISOR: docker
-          BEAKER_DEBUG: true
+        run: bundle exec beaker --provision --hosts --preserve-hosts always
+        env: ${{ matrix.env }}
       - name: List images
         run: docker images
       - name: List container
