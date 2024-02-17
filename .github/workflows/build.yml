@@ -62,7 +62,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: add tag
-        run: docker image tag ${{ github.repository }}:latest ghcr.io/${{ github.repository }}:${{ matrix.env.BEAKER_SETFILE }}-${{ env.BEAKER_PUPPET_COLLECTION }}
+      - name: Add tag
+        run: docker image tag ${{ github.repository }}:latest ghcr.io/${{ github.repository }}:${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}
       - name: Publish container
-        run: docker push ghcr.io/${{ github.repository }}:${{ matrix.env.BEAKER_SETFILE }}-${{ env.BEAKER_PUPPET_COLLECTION}}
+        run: docker push ghcr.io/${{ github.repository }}:${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION}}
