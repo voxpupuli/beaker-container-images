@@ -50,7 +50,7 @@ jobs:
           cache-version: ${{ inputs.cache-version }}
           working-directory: ${{ inputs.working-directory }}
       - name: Run beaker
-        run: bundle exec beaker --provision --preserve-hosts always --hosts ${{ matrix.env.BEAKER_SETFILE }}{tag=beaker} --log-level debug
+        run: bundle exec beaker --provision --preserve-hosts always --hosts ${{ matrix.env.BEAKER_SETFILE }}{tag=${{ github.repository }}} --log-level debug
         env: ${{ matrix.env }}
       - name: List images
         run: docker images
@@ -62,5 +62,7 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
+      - name: add tag
+        run: docker image tag ${{ github.repository }}:latest ${{ github.repository }}:${{ matrix.env.BEAKER_SETFILE }}
       - name: Publish container
-        run: docker push ghcr.io/bastelfreak/beaker-container-images:${{ matrix.env.BEAKER_SETFILE }}
+        run: docker push ghcr.io/bastelfreak/${{ github.repository }}:${{ matrix.env.BEAKER_SETFILE }}
