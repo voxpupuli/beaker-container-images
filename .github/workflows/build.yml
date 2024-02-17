@@ -47,7 +47,7 @@ jobs:
           cache-version: ${{ inputs.cache-version }}
           working-directory: ${{ inputs.working-directory }}
       - name: Run beaker
-        run: bundle exec rake beaker
+        run: bundle exec beaker --provision --preserve-hosts always --hosts ${{ matrix.env.BEAKER_SETFILE }}
         env: ${{ matrix.env }}
       - name: List images
         run: docker images
