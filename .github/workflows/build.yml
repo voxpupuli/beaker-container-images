@@ -12,6 +12,7 @@ jobs:
     env:
       BUNDLE_WITHOUT: release
       BEAKER_HYPERVISOR: docker
+      BEAKER_DEBUG: true
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
