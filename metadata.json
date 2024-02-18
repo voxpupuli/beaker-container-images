@@ -5,12 +5,7 @@
   "version": "0.2.1",
   "summary": " An example Puppet repository to test out automation and coding styles",
   "source": "https://github.com/voxpupuli/puppet-example",
-  "dependencies": [
-    {
-      "name": "puppetlabs-stdlib",
-      "version_requirement": ">= 4.25.0 < 9.0.0"
-    }
-  ],
+  "dependencies": [ ],
   "requirements": [
     {
       "name": "puppet",
