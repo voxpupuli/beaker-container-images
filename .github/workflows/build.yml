@@ -48,7 +48,7 @@ jobs:
           cache-version: ${{ inputs.cache-version }}
           working-directory: ${{ inputs.working-directory }}
       - name: Run beaker
-        run: bundle exec beaker --provision --preserve-hosts always --hosts ${{ matrix.env.BEAKER_SETFILE }}{tag=${{ github.repository }}} --log-level debug --helper install_puppet.rb
+        run: bundle exec beaker --provision --hosts ${{ matrix.env.BEAKER_SETFILE }} --log-level debug --helper install_puppet.rb
         env: ${{ matrix.env }}
       - name: List images
         run: docker images
@@ -60,9 +60,13 @@ jobs:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Add tag to image
-        run: docker image tag ${{ github.repository }}:latest ghcr.io/${{ github.repository_owner }}/${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}:latest
-      - name: Extract metadata (tags, labels) for Docker
+      - name: Export container name
+        run: name=$(docker container ls --last 1 --format json | jq --raw-output .Names) > container_name
+      - name: commit Container
+        run: docker commit "$(cat container_name)" ghcr.io/${{ github.repository_owner }}/${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}:latest
+      # - name: Add tag to image
+      #  run: docker image tag ${{ github.repository }}:latest ghcr.io/${{ github.repository_owner }}/${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}:latest
+       - name: Extract metadata (tags, labels) for Docker
         id: meta
         uses: docker/metadata-action@v5
         with:
