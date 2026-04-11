@@ -13,17 +13,16 @@ permissions:
 
 jobs:
   setup_matrix:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Setup Matrix
     outputs:
-      puppet_unit_test_matrix: ${{ steps.get-outputs.outputs.puppet_unit_test_matrix }}
       puppet_beaker_test_matrix: ${{ steps.get-outputs.outputs.puppet_beaker_test_matrix }}
     steps:
       - uses: actions/checkout@v6
       - name: Install Ruby ${{ matrix.ruby }}
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: "3.2"
+          ruby-version: "4.0"
           bundler-cache: true
       - name: Setup Test Matrix
         id: get-outputs
@@ -31,7 +30,7 @@ jobs:
 
   beaker:
     needs: setup_matrix
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     permissions:
       contents: read
       packages: write # required to publish to the github container registry
@@ -47,10 +46,9 @@ jobs:
       - name: Setup ruby
         uses: ruby/setup-ruby@v1
         with:
-          ruby-version: '3.2'
+          ruby-version: '4.0'
           bundler-cache: true
           cache-version: ${{ inputs.cache-version }}
-          working-directory: ${{ inputs.working-directory }}
       - name: Run beaker
         run: bundle exec beaker-docker containerfile ${{ matrix.env.BEAKER_SETFILE }}
         env: ${{ matrix.env }}
