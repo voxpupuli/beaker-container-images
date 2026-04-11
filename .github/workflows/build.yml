@@ -8,6 +8,9 @@ on:
     branches:
       - master
 
+permissions:
+  contents: read
+
 jobs:
   setup_matrix:
     runs-on: ubuntu-latest
@@ -31,7 +34,7 @@ jobs:
     runs-on: ubuntu-latest
     permissions:
       contents: read
-      packages: write
+      packages: write # required to publish to the github container registry
     env:
       BEAKER_HYPERVISOR: podman
     strategy:
