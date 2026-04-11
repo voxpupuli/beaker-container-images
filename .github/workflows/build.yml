@@ -33,7 +33,7 @@ jobs:
       contents: read
       packages: write
     env:
-      BEAKER_HYPERVISOR: docker
+      BEAKER_HYPERVISOR: podman
     strategy:
       fail-fast: false
       matrix:
@@ -49,33 +49,18 @@ jobs:
           cache-version: ${{ inputs.cache-version }}
           working-directory: ${{ inputs.working-directory }}
       - name: Run beaker
-        run: bundle exec beaker --provision --preserve-hosts always --hosts ${{ matrix.env.BEAKER_SETFILE }}{tag=${{ github.repository }}} --log-level debug --helper install_puppet.rb
+        run: bundle exec beaker-docker containerfile ${{ matrix.env.BEAKER_SETFILE }}
         env: ${{ matrix.env }}
-      - name: List images
-        run: docker images
-      - name: List container
-        run: docker ps
-      - name: Log in to the Container registry
-        uses: docker/login-action@65b78e6e13532edd9afa3aa52ac7964289d1a9c1
-        with:
-          registry: ghcr.io
-          username: ${{ github.actor }}
-          password: ${{ secrets.GITHUB_TOKEN }}
-      - name: Add tag to image
-        run: docker image tag ${{ github.repository }}:latest ghcr.io/${{ github.repository_owner }}/${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}:latest
-      - name: Extract metadata (tags, labels) for Docker
-        id: meta
-        uses: docker/metadata-action@v5
-        with:
-          images: ghcr.io/${{ github.repository_owner }}/${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}:latest
-      - name: Publish container
-        run: docker push ghcr.io/${{ github.repository_owner }}/${{ matrix.env.BEAKER_SETFILE }}-${{ matrix.env.BEAKER_PUPPET_COLLECTION }}:latest
 
   tests:
+    if: always()
     needs:
       - setup_matrix
       - beaker
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     name: Test suite
     steps:
-      - run: echo Test suite completed
+      - name: Decide whether the needed jobs succeeded or failed
+        uses: re-actors/alls-green@release/v1
+        with:
+          jobs: ${{ toJSON(needs) }}
