@@ -51,6 +51,8 @@ jobs:
       - name: Run beaker
         run: bundle exec beaker-docker containerfile ${{ matrix.env.BEAKER_SETFILE }}
         env: ${{ matrix.env }}
+      - name: Output Containerfile
+        run: cat Containerfile
 
   tests:
     if: always()
