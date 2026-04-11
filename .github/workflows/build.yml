@@ -64,7 +64,7 @@ jobs:
           file: Containerfile
           #provenance: true
           push: false
-          sbom: true
+          #sbom: true
           platforms: linux/amd64
           load: true # makes the image available to the running docker service
           tags: latest
