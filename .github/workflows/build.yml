@@ -60,6 +60,7 @@ jobs:
       - name: Build
         uses: docker/build-push-action@v7.1.0
         with:
+          context: .
           file: Containerfile
           #provenance: true
           push: false
