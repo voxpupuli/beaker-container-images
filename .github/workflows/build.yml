@@ -48,12 +48,26 @@ jobs:
         with:
           ruby-version: '4.0'
           bundler-cache: true
-          cache-version: ${{ inputs.cache-version }}
+      - name: Display Ruby environment
+        run: bundle env
       - name: Run beaker
         run: bundle exec beaker-docker containerfile ${{ matrix.env.BEAKER_SETFILE }}
         env: ${{ matrix.env }}
       - name: Output Containerfile
         run: cat Containerfile
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+      - name: Build
+        uses: docker/build-push-action@v7.1.0
+        with:
+          context: .
+          file: Containerfile
+          #provenance: true
+          push: false
+          #sbom: true
+          platforms: linux/amd64
+          load: true # makes the image available to the running docker service
+          tags: latest
 
   tests:
     if: always()
